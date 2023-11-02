@@ -1,12 +1,13 @@
 import { getAnecdotes, updateAnecdote } from "../request";
 import AnecdoteForm from "./components/AnecdoteForm";
-import Notification from "./components/Notification";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import CounterContext from "./counterContext";
-import { useReducer } from "react";
+import { useContext } from "react";
+import NotificationContext from "./components/NotificationContext";
+import Notification from "./components/Notification";
 
 const App = () => {
-  const [notification, notificationDispatch] = useReducer(notification, null);
+  const { notification, setNotification } = useContext(NotificationContext);
+
   const queryClient = useQueryClient();
   const updateAnecdoteMutation = useMutation(updateAnecdote, {
     onSuccess: () => {
@@ -15,6 +16,7 @@ const App = () => {
   });
   const handleVote = (anecdote) => {
     updateAnecdoteMutation.mutate({ ...anecdote, votes: anecdote.votes + 1 });
+    setNotification(`Anecdote "${anecdote.content}" was voted`);
   };
 
   const result = useQuery({
@@ -36,24 +38,22 @@ const App = () => {
   const anecdotes = result.data;
 
   return (
-    <CounterContext.Provider value={[notification, notificationDispatch]}>
-      <div>
-        <h3>Anecdote app</h3>
+    <div>
+      <h3>Anecdote app</h3>
 
-        <Notification />
-        <AnecdoteForm />
+      <AnecdoteForm />
+      <Notification />
 
-        {anecdotes.map((anecdote) => (
-          <div key={anecdote.id}>
-            <div>{anecdote.content}</div>
-            <div>
-              has {anecdote.votes}
-              <button onClick={() => handleVote(anecdote)}>vote</button>
-            </div>
+      {anecdotes.map((anecdote) => (
+        <div key={anecdote.id}>
+          <div>{anecdote.content}</div>
+          <div>
+            has {anecdote.votes}
+            <button onClick={() => handleVote(anecdote)}>vote</button>
           </div>
-        ))}
-      </div>
-    </CounterContext.Provider>
+        </div>
+      ))}
+    </div>
   );
 };
 
