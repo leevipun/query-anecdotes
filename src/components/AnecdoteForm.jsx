@@ -11,7 +11,7 @@ const AnecdoteForm = () => {
       queryClient.invalidateQueries({ queryKey: ["anecdotes"] });
     },
     onError: (error) => {
-      setNotification("Anecdootin on oltava vähentään 5 merkkiä");
+      setNotification(error.response.data.error);
     },
   });
   const onCreate = (event) => {
